@@ -1,0 +1,10 @@
+*.txt text eol=lf
+*.go text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.mod text eol=lf
+*.sum text eol=lf
+*.yml text eol=lf
+*Docker* text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
