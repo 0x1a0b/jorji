@@ -21,6 +21,7 @@ vendor/
 
 # secrets
 *.secret.yml
+*.secret.txt
 
 # other stuff
 tmp/
