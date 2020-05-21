@@ -69,23 +69,19 @@ type JorjiCertData struct {
   // List of allowed email addresses
   AllowedMails []string
 
-  // Critical Name Contraints, if this is true you should take a closer look 
-  // at the exact constraints, as they are deemed important
-  CriticalNameConstraints bool
-
   // Human readable timestamp when this certificate expires
   // Format: YYYY-MM-DD.HH
   NotAfterHuman string
 
   // unix timestamp when this certificate expires
-  NotAfterUnix int
+  NotAfterUnix int64
 
   // Human readable timestamp when this certificate begins to be valid
   // Format: YYYY-MM-DD.HH
   NotBeforeHuman string
 
   // unix timestamp when this certificate begins to be valid
-  NotBeforeUnix int
+  NotBeforeUnix int64
 
   // md5 hash of the certificate signature
   // ONLY for deduplication of logmessages

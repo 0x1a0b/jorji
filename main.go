@@ -21,6 +21,7 @@ var (
 func init() () {
 
   log.SetFormatter(&log.JSONFormatter{})
+  log.SetReportCaller(true)
 
   loader, err := configuro.NewConfig()
   if err != nil {

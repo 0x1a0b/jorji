@@ -15,8 +15,8 @@ type Config struct {
   // Configre list of filescanner
   Scanfiles []FileScanner
 
-  // Console Output Control
-  Consoleout ScanOutput
+  // Output Control
+  Out ScanOutput
 
   // Interval for sleep if started as server
   Serverintervalminutes int `default:"120"`
@@ -74,18 +74,12 @@ type ScanOutput struct {
   Infoafterdays int `default:"62"`
   Debugafterdays int `default:"82"`
 
-  // If we send to console, control if warnings go to stderr
-  // (by default, only programmatic errors go to stderr)
-  Warntostderr bool `default:"false"`
-  Infotostderr bool `default:"false"`
-  Debugtostderr bool `default:"false"`
-
   // If we are running in exec mode, control if findings trigger a non-zero exit
   // (by default, only programmatic errors trigger a non-zero exit)
   // if enabled the exit codes are:
-  // More than 0 Warns: Exit with 20
+  // More than 0 Warns: Exit with 40
   // More than 0 Infos: Exit with 30
-  // More than 0 Debugs: Exit with 40
+  // More than 0 Debugs: Exit with 30
   Warnexitcodes bool `default:"false"`
   Infoexitcodes bool `default:"false"`
   Debugexitcodes bool `default:"false"`
