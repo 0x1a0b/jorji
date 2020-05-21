@@ -18,6 +18,7 @@ vendor/
 
 # vim swap files
 *.swp
+*~
 
 # secrets
 *.secret.yml
