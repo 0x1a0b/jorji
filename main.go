@@ -4,6 +4,7 @@ import (
 
   "github.com/sherifabdlnaby/configuro"
   log "github.com/sirupsen/logrus"
+  "github.com/davecgh/go-spew/spew"
   "os"
   "time"
   "fmt"
@@ -12,7 +13,7 @@ import (
 
 var (
 
-  Conf *Config
+  Conf Config
   HighestExitCode int
 
 )
@@ -26,13 +27,14 @@ func init() () {
     log.Fatalf("Error creating config loader: %v", err)
   }
 
-  err = loader.Load(Conf)
+  err = loader.Load(&Conf)
   if err != nil {
     log.Fatalf("Error loading configuration: %v", err)
   }
 
   if (Conf.Debug == true) {
     log.SetLevel(log.TraceLevel)
+    spew.Dump(Conf)
   } else {
     log.SetLevel(log.DebugLevel)
   }
@@ -52,7 +54,7 @@ func StartFromCmd() () {
   } else if (os.Args[1] == "server") {
     for {
       RunAllJorjiScanners()
-      time.Sleep(time.Duration(Conf.ServerIntervalMinutes) * time.Minute)
+      time.Sleep(time.Duration(Conf.Serverintervalminutes) * time.Minute)
     }
   } else {
     ShowUsage()
@@ -63,7 +65,7 @@ func StartFromCmd() () {
 
 func RunAllJorjiScanners() () {
 
-  for _, fileScan := range Conf.ScanFiles {
+  for _, fileScan := range Conf.Scanfiles {
     JorjiScanFile(fileScan)
   }
 

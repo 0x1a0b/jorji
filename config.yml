@@ -1,0 +1,18 @@
+debug: true
+serverintervalminutes: 1
+hec:
+  eanbled: false
+scanfiles:
+  - path: first
+  - path: second
+  - path: third
+consoleout:
+  warnafterdays: 40
+  warntoStderr: true
+  warnexitcodes: true
+  infoafterdays: 60
+  infotoStderr: false
+  infoexitcodes: false
+  debugafterdays: 80
+  debugtoStderr: false
+  debugexitcodes: false
