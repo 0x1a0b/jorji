@@ -5,6 +5,7 @@ import (
   "github.com/sherifabdlnaby/configuro"
   log "github.com/sirupsen/logrus"
   "github.com/davecgh/go-spew/spew"
+  splunk "github.com/Franco-Poveda/logrus-splunk-hook"
   "os"
   "time"
   "fmt"
@@ -38,6 +39,25 @@ func init() () {
     spew.Dump(Conf)
   } else {
     log.SetLevel(log.DebugLevel)
+  }
+
+  if (Conf.Hec.Enabled==true) {
+    splunkClient := splunk.Client{
+      URL: Conf.Hec.Url,
+      Hostname: Conf.Hec.Hostname,
+      Token: Conf.Hec.Secret,
+      Source: Conf.Hec.Source,
+      SourceType: Conf.Hec.Sourcetype,
+      Index: Conf.Hec.Index,
+    }
+    log.AddHook(splunk.NewHook(&splunkClient, []log.Level{
+      log.PanicLevel,
+      log.FatalLevel,
+      log.ErrorLevel,
+      log.WarnLevel,
+      log.InfoLevel,
+      log.DebugLevel,
+    }))
   }
 
 }

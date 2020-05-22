@@ -31,16 +31,19 @@ type HecSender struct {
   Enabled bool `default:"false"`
 
   // https HEC Host
-  Host string
+  Url string
 
-  // TLS security
-  Tlschaincheck bool `default:"true"`
+  // this is us. Hostname which we declare when sending
+  Hostname string
 
   // HEC SecretID
   Secret string
 
   // Target Index
   Index string
+
+  // Target Source
+  Source string
 
   // Target Sourcetype
   Sourcetype string
