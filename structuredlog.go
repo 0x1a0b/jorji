@@ -40,6 +40,9 @@ type JorjiFileInfo struct {
   // Path
   Path string
 
+  // Comment
+  Comment string
+
   // Number of days until expiry
   DaysUntilInvalid int
 

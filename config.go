@@ -54,15 +54,12 @@ type FileScanner struct {
   // if there are multiple certs found in the file, the first is taken
   Path string
 
-  // if set and multiple certs are in the file, the first cert matching CN will be taken
-  Restrictcn string
-
-  // if true, any certificate in the file that is marked as CA is ignored
-  Restrictnoca bool `default:"false"`
-
   // if set, this amount of days will be substracted from the NotValidAfter
   // field, before the calculation of remaining days is done
   Substractvaliditydays int `default:"0"`
+
+  // comment field for this certificate
+  Comment string
 
 }
 

@@ -1,13 +1,17 @@
-debug: true
+debug: false
 serverintervalminutes: 1
 hec:
   eanbled: false
 scanfiles:
   - path: ./test.single
+    comment: testfile normal
+  - path: ./test.single
+    comment: testfile with subtractdays
+    Substractvaliditydays: 100
 out:
   warnafterdays: 40
   warnexitcodes: true
   infoafterdays: 60
   infoexitcodes: false
-  debugafterdays: 80
-  debugexitcodes: false
+  debugafterdays: 362
+  debugexitcodes: true

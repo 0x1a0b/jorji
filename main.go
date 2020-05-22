@@ -60,6 +60,7 @@ func StartFromCmd() () {
   } else {
     ShowUsage()
   }
+  log.Tracef("Exiting with code %v", HighestExitCode)
   os.Exit(HighestExitCode)
 
 }

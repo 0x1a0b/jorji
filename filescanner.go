@@ -44,14 +44,17 @@ func CreateCertlistFromFile(path string) (certs []x509.Certificate) {
     var block *pem.Block
     block, fileContents = pem.Decode(fileContents)
     if block == nil {
+      log.Tracef("no more chunks left to parse if %v", path)
 			break
 		}
 		if block.Type != "CERTIFICATE" || len(block.Headers) != 0 {
+      log.Tracef("found a remaining certificate chunk in %v", path)
 			continue
 		}
 
 		cert, err := x509.ParseCertificate(block.Bytes)
 		if err != nil {
+      log.Tracef("chunk could not be parsed %v", path)
 			continue
 		}
 
@@ -101,6 +104,7 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
   var fileInfo JorjiFileInfo
 
   fileInfo.Path = fileToScan.Path
+  fileInfo.Comment = fileToScan.Comment
   fileInfo.Certdata = data
 
   Now := time.Now()
@@ -124,6 +128,7 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
     if (Conf.Out.Warnexitcodes) {
       if (HighestExitCode < 40) {
         HighestExitCode = 40
+        log.Tracef("%v replaces HighestExitCode with 40", fileInfo.Path)
       }
     }
 
@@ -140,6 +145,7 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
     if (Conf.Out.Infoexitcodes) {
       if (HighestExitCode < 30) {
         HighestExitCode = 30
+        log.Tracef("%v replaces HighestExitCode with 30", fileInfo.Path)
       }
     }
 
@@ -156,6 +162,7 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
     if (Conf.Out.Debugexitcodes) {
       if (HighestExitCode < 20) {
         HighestExitCode = 20
+        log.Tracef("%v replaces HighestExitCode with 20", fileInfo.Path)
       }
     }
 
