@@ -7,11 +7,14 @@ scanfiles:
     comment: testfile normal
   - path: ./test.single
     comment: testfile with subtractdays
-    Substractvaliditydays: 100
+    substractvaliditydays: 100
+scantlsexpiry:
+  - connect: www.google.com:443
+    substractvaliditydays: 9
 out:
-  warnafterdays: 40
+  warnafterdays: 60
   warnexitcodes: true
-  infoafterdays: 60
+  infoafterdays: 67
   infoexitcodes: false
-  debugafterdays: 362
+  debugafterdays: 70
   debugexitcodes: true

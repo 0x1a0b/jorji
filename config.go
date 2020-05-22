@@ -59,11 +59,6 @@ type TlsExpiryScanner struct {
   // Connect string for the tcp dialer, host:port or ip:port
   Connect string
 
-  // Clientcert combined pem if the listener enforce mtls
-  // if this is unset for a listener that requires it, the handshake will
-  // fail and we will not be able to parse the remote cert
-  Tlsclientpem string
-
   // Sniindicator
   Sniindicator string
 

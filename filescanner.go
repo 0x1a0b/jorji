@@ -117,20 +117,20 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
   }
 
   WarnNow := Now.AddDate(0, 0, Conf.Out.Warnafterdays)
-  if (WarnNow.After(NotAfter)) {
+  if (WarnNow.After(mutatedNotAfter)) {
     fileInfo.Level = "WARN"
 
     log.WithFields(log.Fields{
       "filescannerlog": StructuredFileLog{
         Jorjifileinfo: fileInfo,
         Jorjifilereq: fileToScan,
-      }
-    }).Warnf("Filescanner threw a warning message for %v", fileInfo.Path)
+      },
+    }).Warnf("Filescanner threw a warning message for %v", fileToScan.Path)
 
     if (Conf.Out.Warnexitcodes) {
       if (HighestExitCode < 40) {
         HighestExitCode = 40
-        log.Tracef("%v replaces HighestExitCode with 40", fileInfo.Path)
+        log.Tracef("%v replaces HighestExitCode with 40", fileToScan.Path)
       }
     }
 
@@ -139,20 +139,20 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
   }
 
   InfoNow := Now.AddDate(0, 0, Conf.Out.Infoafterdays)
-  if (InfoNow.After(NotAfter)) {
+  if (InfoNow.After(mutatedNotAfter)) {
     fileInfo.Level = "INFO"
 
     log.WithFields(log.Fields{
       "filescannerlog": StructuredFileLog{
         Jorjifileinfo: fileInfo,
         Jorjifilereq: fileToScan,
-      }
-    }).Infof("Filescanner threw a info message for %v", fileInfo.Path)
+      },
+    }).Infof("Filescanner threw a info message for %v", fileToScan.Path)
 
     if (Conf.Out.Infoexitcodes) {
       if (HighestExitCode < 30) {
         HighestExitCode = 30
-        log.Tracef("%v replaces HighestExitCode with 30", fileInfo.Path)
+        log.Tracef("%v replaces HighestExitCode with 30", fileToScan.Path)
       }
     }
 
@@ -161,20 +161,20 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
   }
 
   DebugNow := Now.AddDate(0, 0, Conf.Out.Debugafterdays)
-  if (DebugNow.After(NotAfter)) {
+  if (DebugNow.After(mutatedNotAfter)) {
     fileInfo.Level = "DEBUG"
 
     log.WithFields(log.Fields{
       "filescannerlog": StructuredFileLog{
         Jorjifileinfo: fileInfo,
         Jorjifilereq: fileToScan,
-      }
-    }).Debugf("Filescanner threw a debug message for %v", fileInfo.Path)
+      },
+    }).Debugf("Filescanner threw a debug message for %v", fileToScan.Path)
 
     if (Conf.Out.Debugexitcodes) {
       if (HighestExitCode < 20) {
         HighestExitCode = 20
-        log.Tracef("%v replaces HighestExitCode with 20", fileInfo.Path)
+        log.Tracef("%v replaces HighestExitCode with 20", fileToScan.Path)
       }
     }
 

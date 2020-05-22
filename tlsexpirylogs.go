@@ -8,7 +8,7 @@ type StructuredTlsExpiryLog struct {
   // root anchor for message parsing
   Jorjitlsexpinfo JorjiTlsExpiryInfo
 
-  ´// root element of the scanner configuration
+  // root element of the scanner configuration
   Jorjitlsexpreq TlsExpiryScanner
 
 }
