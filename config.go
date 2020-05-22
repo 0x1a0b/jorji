@@ -15,6 +15,9 @@ type Config struct {
   // Configre list of filescanner
   Scanfiles []FileScanner
 
+  // Configure list of tls-expiry scanners
+  Scantlsexpiry []TlsExpiryScanner
+
   // Output Control
   Out ScanOutput
 
@@ -47,6 +50,29 @@ type HecSender struct {
 
   // Target Sourcetype
   Sourcetype string
+
+}
+
+
+type TlsExpiryScanner struct {
+
+  // Connect string for the tcp dialer, host:port or ip:port
+  Connect string
+
+  // Clientcert combined pem if the listener enforce mtls
+  // if this is unset for a listener that requires it, the handshake will
+  // fail and we will not be able to parse the remote cert
+  Tlsclientpem string
+
+  // Sniindicator
+  Sniindicator string
+
+  // if set, this amount of days will be substracted from the NotValidAfter
+  // field, before the calculation of remaining days is done
+  Substractvaliditydays int `default:"0"`
+
+  // comment field for this certificate
+  Comment string
 
 }
 

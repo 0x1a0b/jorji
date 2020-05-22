@@ -102,8 +102,6 @@ func CertToCertData(cert x509.Certificate) (data JorjiCertData, NotAfter time.Ti
 
 func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileScanner) (fileInfo JorjiFileInfo, mutatedNotAfter time.Time) {
 
-  fileInfo.Path = fileToScan.Path
-  fileInfo.Comment = fileToScan.Comment
   fileInfo.Certdata = data
 
   Now := time.Now()
@@ -123,7 +121,10 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
     fileInfo.Level = "WARN"
 
     log.WithFields(log.Fields{
-      "filescanner_result": fileInfo,
+      "filescannerlog": StructuredFileLog{
+        Jorjifileinfo: fileInfo,
+        Jorjifilereq: fileToScan,
+      }
     }).Warnf("Filescanner threw a warning message for %v", fileInfo.Path)
 
     if (Conf.Out.Warnexitcodes) {
@@ -142,7 +143,10 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
     fileInfo.Level = "INFO"
 
     log.WithFields(log.Fields{
-      "filescanner_result": fileInfo,
+      "filescannerlog": StructuredFileLog{
+        Jorjifileinfo: fileInfo,
+        Jorjifilereq: fileToScan,
+      }
     }).Infof("Filescanner threw a info message for %v", fileInfo.Path)
 
     if (Conf.Out.Infoexitcodes) {
@@ -161,7 +165,10 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
     fileInfo.Level = "DEBUG"
 
     log.WithFields(log.Fields{
-      "filescanner_result": fileInfo,
+      "filescannerlog": StructuredFileLog{
+        Jorjifileinfo: fileInfo,
+        Jorjifilereq: fileToScan,
+      }
     }).Debugf("Filescanner threw a debug message for %v", fileInfo.Path)
 
     if (Conf.Out.Debugexitcodes) {

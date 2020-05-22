@@ -91,6 +91,10 @@ func RunAllJorjiScanners() () {
     JorjiScanFile(fileScan)
   }
 
+  for _, tlsExpiryScanner := range Conf.Scantlsexpiry {
+    JorjiScanTlsExpiry(tlsExpiryScanner)
+  }
+
 }
 
 func ShowUsage() () {
