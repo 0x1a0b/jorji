@@ -18,12 +18,13 @@ const (
 
 )
 
-func JorjiScanFile(fileToScan FileScanner) () {
+func JorjiScanFile(fileToScan FileScanner) (fileInfos []JorjiFileInfo) {
 
   pool := CreateCertlistFromFile(fileToScan.Path)
   for _, cert := range pool {
     data, notAfter := CertToCertData(cert)
-    CertDataReporting(data, notAfter, fileToScan)
+    fileInfo, _ := CertDataReporting(data, notAfter, fileToScan)
+    fileInfos = append(fileInfos, fileInfo)
   }
 
   return
@@ -99,9 +100,7 @@ func CertToCertData(cert x509.Certificate) (data JorjiCertData, NotAfter time.Ti
 }
 
 
-func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileScanner) () {
-
-  var fileInfo JorjiFileInfo
+func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileScanner) (fileInfo JorjiFileInfo, mutatedNotAfter time.Time) {
 
   fileInfo.Path = fileToScan.Path
   fileInfo.Comment = fileToScan.Comment
@@ -114,7 +113,9 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
     // fileToScan.Substractvaliditydays should control when we print,
     // but not what we print
     SubtractDays := - fileToScan.Substractvaliditydays
-    NotAfter = NotAfter.AddDate(0, 0, SubtractDays)
+    mutatedNotAfter = NotAfter.AddDate(0, 0, SubtractDays)
+  } else {
+    mutatedNotAfter = NotAfter
   }
 
   WarnNow := Now.AddDate(0, 0, Conf.Out.Warnafterdays)
@@ -131,6 +132,8 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
         log.Tracef("%v replaces HighestExitCode with 40", fileInfo.Path)
       }
     }
+
+    return
 
   }
 
@@ -149,6 +152,8 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
       }
     }
 
+    return
+
   }
 
   DebugNow := Now.AddDate(0, 0, Conf.Out.Debugafterdays)
@@ -166,8 +171,9 @@ func CertDataReporting(data JorjiCertData, NotAfter time.Time, fileToScan FileSc
       }
     }
 
-  }
+    return
 
+  }
 
   return
 
