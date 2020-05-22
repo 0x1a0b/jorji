@@ -70,18 +70,22 @@ func main() () {
 
 func StartFromCmd() () {
 
-  if (os.Args[1] == "exec") {
-    RunAllJorjiScanners()
-  } else if (os.Args[1] == "server") {
-    for {
+  if (len(os.Args) == 2) {
+    if (os.Args[1] == "exec") {
       RunAllJorjiScanners()
-      time.Sleep(time.Duration(Conf.Serverintervalminutes) * time.Minute)
+    } else if (os.Args[1] == "server") {
+      for {
+        RunAllJorjiScanners()
+        time.Sleep(time.Duration(Conf.Serverintervalminutes) * time.Minute)
+      }
+    } else {
+      ShowUsage()
     }
+    log.Tracef("Exiting with code %v", HighestExitCode)
+    os.Exit(HighestExitCode)
   } else {
     ShowUsage()
   }
-  log.Tracef("Exiting with code %v", HighestExitCode)
-  os.Exit(HighestExitCode)
 
 }
 
