@@ -48,6 +48,9 @@ type TestExpiryScanner_JorjiScanTlsExpiry_Testcase struct {
 
 func TestJorjiScanTlsExpiryWarnings(t *testing.T) {
 
+  //test 1/3
+  // most basic scanner and logging capabilities
+
   testsuite := []TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
     TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
       Name: "1",
@@ -143,7 +146,7 @@ func TestJorjiScanTlsExpiryWarnings(t *testing.T) {
 
   for _, test := range testsuite {
 
-    tlsTestHelper_Create_cert_and_key(test.Certpath, test.Keypath, test.ValidDays)
+    tlsTestHelper_Create_cert_and_key(test.Certpath, test.Keypath, "", test.ValidDays)
     defer tlsTestHelper_RemoveCertAndKey(test.Certpath, test.Keypath)
 
     var wg sync.WaitGroup
@@ -238,59 +241,241 @@ func TestJorjiScanTlsExpiryWarnings(t *testing.T) {
 
 }
 
-//func TestJorjiScanTlsExpirySniHandling(t *testing.T) {
-//
-//  var testsuite []TestExpiryScanner_JorjiScanTlsExpiry_Testcase
-//    TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
-//      Bind: "127.0.0.1:49381",
-//      Sni: "example.org",
-//      ValidDays: ,
-//      Certpath "",
-//      Keypath "",
-//      Substractvaliditydays: ,
-//      Warnafterdays: ,
-//      Infoafterdays: ,
-//      Debugafterdays: ,
-//      ExpectWarn: ,
-//      ExpectInfo: ,
-//      ExpectDebug: ,
-//    },
-//    TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
-//      Bind: "127.0.0.1:49381",
-//      Sni: "hello.com",
-//      ValidDays: ,
-//      Certpath "",
-//      Keypath "",
-//      Substractvaliditydays: ,
-//      Warnafterdays: ,
-//      Infoafterdays: ,
-//      Debugafterdays: ,
-//      ExpectWarn: ,
-//      ExpectInfo: ,
-//      ExpectDebug: ,
-//    },
-//    TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
-//      Bind: "127.0.0.1:49381",
-//      Sni: "ww.ch",
-//      ValidDays: ,
-//      Certpath "",
-//      Keypath "",
-//      Substractvaliditydays: ,
-//      Warnafterdays: ,
-//      Infoafterdays: ,
-//      Debugafterdays: ,
-//      ExpectWarn: ,
-//      ExpectInfo: ,
-//      ExpectDebug: ,
-//    },
-//  }
-//
-//}
-//
-//
-//func TestJorjiScanTlsExpiryEnforcedMtlsHandling(t *testing.T) {
-//}
-//
+func TestJorjiScanTlsExpirySniHandling(t *testing.T) {
+
+  //test 2/3
+  // multiple SNI hosts on the same listener
+
+  testsuite := []TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
+    TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
+      Name: "sni1",
+      Bind: "127.0.0.1:49381",
+      Sni: "example.org",
+      ValidDays: 5,
+      Certpath: "testtlssni1.cert",
+      Keypath: "testtlssni1.key",
+      Substractvaliditydays: 1,
+      Warnafterdays: 10,
+      Infoafterdays: 20,
+      Debugafterdays: 30,
+      ExpectWarn: true,
+      ExpectInfo: false,
+      ExpectDebug: false,
+    },
+    TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
+      Name: "sni2",
+      Bind: "127.0.0.1:49381",
+      Sni: "hello.com",
+      ValidDays: 15,
+      Certpath: "testtlssni2.cert",
+      Keypath: "testtlssni2.key",
+      Substractvaliditydays: 1,
+      Warnafterdays: 10,
+      Infoafterdays: 20,
+      Debugafterdays: 30,
+      ExpectWarn: false,
+      ExpectInfo: true,
+      ExpectDebug: false,
+    },
+    TestExpiryScanner_JorjiScanTlsExpiry_Testcase{
+      Name: "sni3",
+      Bind: "127.0.0.1:49381",
+      Sni: "ww.ch",
+      ValidDays: 25,
+      Certpath: "testtlssni3.cert",
+      Keypath: "testtlssni3.key",
+      Substractvaliditydays: 1,
+      Warnafterdays: 10,
+      Infoafterdays: 20,
+      Debugafterdays: 30,
+      ExpectWarn: false,
+      ExpectInfo: false,
+      ExpectDebug: true,
+    },
+  }
+
+    for _, test := range testsuite {
+      tlsTestHelper_Create_cert_and_key(test.Certpath, test.Keypath, test.Sni, test.ValidDays)
+    }
+
+    var wg sync.WaitGroup
+    go func() {
+      wg.Add(1)
+
+      mux := http.NewServeMux()
+      mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+          w.Write([]byte("This is an example server.\n"))
+      })
+      tlsConfig := &tls.Config{}
+      tlsConfig.Certificates = make([]tls.Certificate, 3)
+      var err error
+      tlsConfig.Certificates[0], err = tls.LoadX509KeyPair("testtlssni1.cert", "testtlssni1.key")
+      if err != nil {
+        log.Fatal(err)
+      }
+      tlsConfig.Certificates[1], err = tls.LoadX509KeyPair("testtlssni2.cert", "testtlssni2.key")
+      if err != nil {
+        log.Fatal(err)
+      }
+      tlsConfig.Certificates[2], err = tls.LoadX509KeyPair("testtlssni3.cert", "testtlssni3.key")
+      if err != nil {
+        log.Fatal(err)
+      }
+      tlsConfig.BuildNameToCertificate()
+      srv := &http.Server{
+          Addr:         "127.0.0.1:49381",
+          Handler:      mux,
+          TLSConfig:    tlsConfig,
+          TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+      }
+      listener, err := tls.Listen("tcp", "127.0.0.1:49381", tlsConfig)
+      if err != nil {
+        log.Fatal(err)
+      }
+      log.Fatal(srv.Serve(listener))
+
+    }()
+    defer wg.Done()
+
+    for _, test := range testsuite {
+
+      Conf.Out.Warnafterdays = test.Warnafterdays
+      Conf.Out.Infoafterdays = test.Infoafterdays
+      Conf.Out.Debugafterdays = test.Debugafterdays
+
+      scannerReq := TlsExpiryScanner{
+        Connect: test.Bind,
+        Sniindicator: test.Sni,
+        Substractvaliditydays: test.Substractvaliditydays,
+        Comment: test.Name,
+      }
+
+      scannerResults := JorjiScanTlsExpiry(scannerReq)
+
+      if (test.ExpectWarn==true) {
+        if !(scannerResults[0].Level=="WARN") {
+          spew.Dump(test)
+          spew.Dump(Conf)
+          spew.Dump(scannerResults)
+          t.Error("incorrect result, false-negative for WARN")
+        }
+      } else {
+        if (scannerResults[0].Level=="WARN") {
+          spew.Dump(test)
+          spew.Dump(Conf)
+          spew.Dump(scannerResults)
+          t.Error("incorrect result, false-positive for WARN")
+        }
+      }
+
+      if (test.ExpectInfo==true) {
+        if !(scannerResults[0].Level=="INFO") {
+          spew.Dump(test)
+          spew.Dump(Conf)
+          spew.Dump(scannerResults)
+          t.Error("incorrect result, false-negative for INFO")
+        }
+      } else {
+        if (scannerResults[0].Level=="INFO") {
+          spew.Dump(test)
+          spew.Dump(Conf)
+          spew.Dump(scannerResults)
+          t.Error("incorrect result, false-positive for INFO")
+        }
+      }
+
+      if (test.ExpectDebug==true) {
+        if !(scannerResults[0].Level=="DEBUG") {
+          spew.Dump(test)
+          spew.Dump(Conf)
+          spew.Dump(scannerResults)
+          t.Error("incorrect result, false-negative for DEBUG")
+        }
+      } else {
+        if (scannerResults[0].Level=="DEBUG") {
+          spew.Dump(test)
+          spew.Dump(Conf)
+          spew.Dump(scannerResults)
+          t.Error("incorrect result, false-positive for DEBUG")
+        }
+      }
+
+    }
+    for _, test := range testsuite {
+      tlsTestHelper_RemoveCertAndKey(test.Certpath, test.Keypath)
+
+    }
+
+}
+
+
+func TestJorjiScanTlsExpiryEnforcedMtlsHandling(t *testing.T) {
+
+  //test 3/3
+  // mTLS exclusive listeners should reject the handshake when no cert
+  // is sent, but we should still get the counterparties certs
+
+  tlsTestHelper_Create_cert_and_key("testtlsmtls1.cert", "testtlsmtls1.key", "", 40)
+  defer tlsTestHelper_RemoveCertAndKey("testtlsmtls1.cert", "testtlsmtls1.key")
+
+  var wg sync.WaitGroup
+  go func() {
+    wg.Add(1)
+
+    mux := http.NewServeMux()
+    mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+        w.Write([]byte("This is an example server.\n"))
+    })
+
+    caCert, err := ioutil.ReadFile("testtlsmtls1.cert")
+    if err != nil {
+      log.Fatal(err)
+    }
+
+    caCertPool := x509.NewCertPool()
+    caCertPool.AppendCertsFromPEM(caCert)
+
+    cfg := &tls.Config{
+        MinVersion:               tls.VersionTLS12,
+        ClientAuth: tls.RequireAndVerifyClientCert,
+        ClientCAs:  caCertPool,
+        CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+        PreferServerCipherSuites: true,
+        CipherSuites: []uint16{
+            tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+        },
+    }
+    srv := &http.Server{
+        Addr:         "127.0.0.1:50123",
+        Handler:      mux,
+        TLSConfig:    cfg,
+        TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+    }
+    srv.ListenAndServeTLS("testtlsmtls1.cert", "testtlsmtls1.key")
+
+  }()
+
+  Conf.Out.Warnafterdays = 25
+  Conf.Out.Infoafterdays = 45
+  Conf.Out.Debugafterdays = 60
+
+  scannerReq := TlsExpiryScanner{
+    Connect: "127.0.0.1:50123",
+    Substractvaliditydays: 1,
+    Comment: "mtls test 1",
+  }
+
+  scannerResults := JorjiScanTlsExpiry(scannerReq)
+
+  if !(scannerResults[0].Level=="INFO") {
+    spew.Dump(Conf)
+    spew.Dump(scannerResults)
+    t.Error("incorrect result, false-negative for INFO")
+  }
+
+}
+
 
 
 func tlsTestHelper_RemoveCertAndKey(certPath string, keyPath string) () {
@@ -308,7 +493,7 @@ func tlsTestHelper_RemoveCertAndKey(certPath string, keyPath string) () {
 }
 
 
-func tlsTestHelper_Create_cert_and_key(certPath string, keyPath string, validForDays int) () {
+func tlsTestHelper_Create_cert_and_key(certPath string, keyPath string, sniName string, validForDays int) () {
 
   priv, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
   if err != nil {
@@ -336,7 +521,7 @@ func tlsTestHelper_Create_cert_and_key(certPath string, keyPath string, validFor
     },
     NotBefore: time.Now(),
     NotAfter:  time.Now().AddDate(0, 0, validForDays),
-
+    DNSNames:    []string{sniName},
     IsCA:                  true,
     KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
     ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
